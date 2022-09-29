@@ -7,6 +7,7 @@ class App {
     this.app = express();
 
     this.config();
+    // this.app.post('/login', )
 
     // Não remover essa rota
     this.app.get('/', (req, res) => res.json({ ok: true }));

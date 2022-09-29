@@ -3,13 +3,12 @@ FROM node:16.14-alpine
 # from e a imagem com que vamos trabalhar
 WORKDIR /app-backend
 
-COPY pacote* ./
+COPY package* ./
 RUN  npm install
 # usar o shell da imagen para rodar os comandos
 COPY . .
 # copiar os arquivos da maquina host para dentro da imagem durante o processo da build
 EXPOSE  3001
-RUN npx tsc
 CMD [ "npm" , "start" ]...
 # CDM comando de saida 
 
