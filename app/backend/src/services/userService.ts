@@ -1,3 +1,6 @@
+import * as bcrypt from 'bcryptjs';
+import * as jwt from 'jsonwebtoken';
+import CustomError from '../Error/CustomError';
 import UserModel from '../database/models/users';
 import createToken from '../middlewares/token';
 
@@ -9,7 +12,8 @@ import createToken from '../middlewares/token';
 // };
 
 // export default { login };
-
+const JWT_SECRET: jwt.Secret = process.env.JWT_SECRET || 'jwt_secret';
+const mensagem = 'Incorrect email or password';
 export default class UserService {
   private _userModel;
   constructor(userModel = UserModel) {
@@ -17,32 +21,17 @@ export default class UserService {
   }
 
   async login({ email, password }: { email: string, password: string }) {
-    const data = await this._userModel.findOne({ where: { email, password } });
-    if (!data) throw new Error('usuario não encontrado');
+    const data = await this._userModel.findOne({ where: { email } });
+    if (!data) throw new CustomError(401, mensagem);
+    const senha = bcrypt.compareSync(password, data.password);
+    if (!senha) throw new CustomError(401, mensagem);
     const token2 = createToken(data.email);
     return token2;
   }
+
+  async validateL(authorization: string) {
+    const validate = jwt.verify(authorization, JWT_SECRET);
+    const result = await this._userModel.findOne({ where: { email: validate } });
+    return result?.role;
+  }
 }
-
-// import User from '../database/models';
-
-// interface IUserService {
-//   create(): Promise<User>
-// }
-
-// export default class UserService implements IUserService {
-//   private db = User
-
-//   async create(): Promise<User> {
-//     await this.db.create();
-//   }
-
-// async findAll(): Promise<User[]> {
-//   const users = await this.db.findAll();
-//   return users;
-// }
-
-// async findById(id: number): Promise<User> {
-//   const user = await this.db.findByPk(id)
-//   return user as User;
-// }

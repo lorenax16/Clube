@@ -1,5 +1,9 @@
 import * as express from 'express';
+import { Request, Response, NextFunction } from 'express';
+import CustomError from './Error/CustomError';
 import routers from './routes';
+
+require('express-async-errors');
 
 class App {
   public app: express.Express;
@@ -24,6 +28,12 @@ class App {
     this.app.use(express.json());
     this.app.use(accessControl);
     this.app.use(routers);
+
+    this.app.use((err: CustomError, req: Request, res: Response, _next: NextFunction) => {
+      const { status, message } = err;
+      console.error(err);
+      res.status(status || 500).json({ message });
+    });
   }
 
   public start(PORT: string | number):void {
