@@ -23,13 +23,17 @@ export default class UserService {
   async login({ email, password }: { email: string, password: string }) {
     const data = await this._userModel.findOne({ where: { email } });
     if (!data) throw new CustomError(401, mensagem);
+
     const senha = bcrypt.compareSync(password, data.password);
     if (!senha) throw new CustomError(401, mensagem);
+
     const token2 = createToken(data.email);
     return token2;
   }
 
   async validateL(authorization: string) {
+    // console.log(authorization, 'autorization');
+    // console.log(JWT_SECRET, 'jwtSe');
     const validate = jwt.verify(authorization, JWT_SECRET);
     const result = await this._userModel.findOne({ where: { email: validate } });
     return result?.role;
