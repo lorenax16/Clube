@@ -34,14 +34,4 @@ export default class MatchesService {
     if (!matcheFound) throw new CustomError(401, 'NotFoundError');
     await this._matchesModel.update({ inProgress: false }, { where: { id } });
   }
-
-  // create: async ({ name }) => {
-  //   const result = await Category.create({ name });
-  //   return result;
-  // },
-
-  // async getById(id: number) {
-  //   const result = await this._teamsModel.findByPk(id);
-  //   return result;
-  // }
 }
