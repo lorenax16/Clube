@@ -1,14 +1,14 @@
-// import CustomError from '../Error/CustomError';
+import CustomError from '../Error/CustomError';
 import Matches from '../database/models/matches';
 import Teams from '../database/models/teams';
+import Imatches from '../interface/Imatches';
 
 export default class MatchesService {
-  private _matchesModel = Matches;
-  private _teamsModel = Teams;
-  // constructor(matchesModel = Matches, teams = Teams) {
-  //   this._matchesModel = matchesModel;
-  //   this._teamsModel = teams;
-  // }
+  private _matchesModel;
+
+  constructor(matchesModel = Matches) {
+    this._matchesModel = matchesModel;
+  }
 
   async getAll() {
     const result = await this._matchesModel.findAll({
@@ -17,6 +17,28 @@ export default class MatchesService {
     });
     return result;
   }
+
+  async create(novoJogo: Imatches) {
+    const { homeTeam, awayTeam } = novoJogo;
+    const verifyHomeTeam = await this._matchesModel.findOne({ where: { id: homeTeam } });
+    const verifyAwayTeam = await this._matchesModel.findOne({ where: { id: awayTeam } });
+    if (!verifyHomeTeam || !verifyAwayTeam) {
+      throw new CustomError(404, 'There is no team with such id!');
+    }
+    const result = await this._matchesModel.create(novoJogo);
+    return result;
+  }
+
+  async update(id:number) {
+    const matcheFound = await this._matchesModel.findByPk(id);
+    if (!matcheFound) throw new CustomError(401, 'NotFoundError');
+    await this._matchesModel.update({ inProgress: false }, { where: { id } });
+  }
+
+  // create: async ({ name }) => {
+  //   const result = await Category.create({ name });
+  //   return result;
+  // },
 
   // async getById(id: number) {
   //   const result = await this._teamsModel.findByPk(id);

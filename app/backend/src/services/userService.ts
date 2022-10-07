@@ -1,5 +1,6 @@
 import * as bcrypt from 'bcryptjs';
-import * as jwt from 'jsonwebtoken';
+// import * as jwt from 'jsonwebtoken';
+import verifyToken from '../middlewares/auth';
 import CustomError from '../Error/CustomError';
 import UserModel from '../database/models/users';
 import createToken from '../middlewares/token';
@@ -34,7 +35,9 @@ export default class UserService {
   async validateL(authorization: string) {
     // console.log(authorization, 'autorization');
     // console.log(JWT_SECRET, 'jwtSe');
-    const validate = jwt.verify(authorization, JWT_SECRET);
+    // a funcão verifytoken ja faz p jwt.verify eu so importo para fazer a validação do token
+    verifyToken(authorization);
+    // const validate = jwt.verify(authorization, JWT_SECRET);
     const result = await this._userModel.findOne({ where: { email: validate } });
     return result?.role;
   }
