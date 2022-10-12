@@ -18,6 +18,15 @@ export default class MatchesService {
     return result;
   }
 
+  async getAllFinish() {
+    const result = await this._matchesModel.findAll({
+      where: { inProgress: false },
+      include: [{ model: Teams, as: 'teamHome', attributes: { exclude: ['id'] } },
+        { model: Teams, as: 'teamAway', attributes: { exclude: ['id'] } }],
+    });
+    return result;
+  }
+
   async create(novoJogo: Imatches) {
     const { homeTeam, awayTeam } = novoJogo;
     const verifyHomeTeam = await this._matchesModel.findOne({ where: { id: homeTeam } });

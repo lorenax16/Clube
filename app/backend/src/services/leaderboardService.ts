@@ -1,43 +1,50 @@
 // import CustomError from '../Error/CustomError';
-import Matches from '../database/models/matches';
-import Teams from '../database/models/teams';
+// import Matches from '../database/models/matches';
+// import Teams from '../database/models/teams';
+import TeamService from './teamsService';
+import MatchesService from './matchesService';
+import calculaPoints from '../util/calculaPoint';
+import TotalVitorias from '../util/totalVitorias';
+import totalDraws from '../util/totalDraws';
+import perdas from '../util/perdas';
+import goalsFavor from '../util/golsFavor';
+import goalsOwn from '../util/goalsOwn';
+import goalsBalance from '../util/goalsBalance';
+import efficiency from '../util/efficiency';
 // import Imatches from '../interface/Imatches';
 
-export default class MatchesService {
-  private _matchesModel;
+export default class LeaderboardService {
+  constructor(private teams = new TeamService(), private matche = new MatchesService()) {}
 
-  constructor(matchesModel = Matches) {
-    this._matchesModel = matchesModel;
-  }
+  async leaderboardHome() {
+    const team = await this.teams.getAll();
+    const matche = await this.matche.getAllFinish();
 
-  async getAll() {
-    const result = await this._matchesModel.findAll({
-      include: [{ model: Teams, as: 'teamHome', attributes: { exclude: ['id'] } },
-        { model: Teams, as: 'teamAway', attributes: { exclude: ['id'] } }],
+    const resultTeam = team.map((item) => {
+      const resultMatche = matche.filter((it) => it.homeTeam === item.id);
+      return {
+        name: item.teamName,
+        totalPoints: calculaPoints(resultMatche),
+        // total de jogos
+        totalGames: resultMatche.length,
+        totalVictories: TotalVitorias(resultMatche),
+        totalDraws: totalDraws(resultMatche),
+        totalLosses: perdas(resultMatche),
+        goalsFavor: goalsFavor(resultMatche),
+        goalsOwn: goalsOwn(resultMatche),
+        goalsBalance: goalsBalance(resultMatche),
+        efficiency: efficiency(resultMatche),
+      };
     });
-    return result;
+    return resultTeam;
   }
 
-  // async create(novoJogo: Imatches) {
-  //   const { homeTeam, awayTeam } = novoJogo;
-  //   const verifyHomeTeam = await this._matchesModel.findOne({ where: { id: homeTeam } });
-  //   const verifyAwayTeam = await this._matchesModel.findOne({ where: { id: awayTeam } });
-  //   if (!verifyHomeTeam || !verifyAwayTeam) {
-  //     throw new CustomError(404, 'There is no team with such id!');
-  //   }
-  //   const result = await this._matchesModel.create(novoJogo);
-  //   return result;
-  // }
-
-  // async update(id:number) {
-  //   const matcheFound = await this._matchesModel.findByPk(id);
-  //   if (!matcheFound) throw new CustomError(401, 'NotFoundError');
-  //   await this._matchesModel.update({ inProgress: false }, { where: { id } });
-  // }
-
-  // async updateId(id:number, homeTeamGoals:number, awayTeamGoals:number) {
-  //   const result = await this._matchesModel.findByPk(id);
-  //   if (!result) throw new CustomError(401, 'NotFoundError');
-  //   await this._matchesModel.update({ homeTeamGoals, awayTeamGoals }, { where: { id } });
-  // }
+  async orden() {
+    const leard = await this.leaderboardHome();
+    return leard.sort((a, b) => b.totalPoints - a.totalPoints
+    || b.totalVictories - a.totalVictories
+    || b.goalsBalance - a.goalsBalance
+    || b.goalsFavor - a.goalsFavor
+    || b.goalsOwn - a.goalsOwn);
+  }
 }

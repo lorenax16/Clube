@@ -1,7 +1,7 @@
 // import CustomError from '../Error/CustomError';
 import TeamsModel from '../database/models/teams';
 
-export default class UserService {
+export default class TeamService {
   private _teamsModel;
   constructor(teamsModel = TeamsModel) {
     this._teamsModel = teamsModel;

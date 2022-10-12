@@ -5,7 +5,7 @@ export default class MatchesController {
   constructor(protected service = new Leaderboard()) {}
 
   getAll = async (_req: Request, res: Response) => {
-    const result = await this.service.getAll();
+    const result = await this.service.orden();
     return res.status(200).json(result);
   };
 
