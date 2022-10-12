@@ -34,4 +34,10 @@ export default class MatchesService {
     if (!matcheFound) throw new CustomError(401, 'NotFoundError');
     await this._matchesModel.update({ inProgress: false }, { where: { id } });
   }
+
+  async updateId(id:number, homeTeamGoals:number, awayTeamGoals:number) {
+    const result = await this._matchesModel.findByPk(id);
+    if (!result) throw new CustomError(401, 'NotFoundError');
+    await this._matchesModel.update({ homeTeamGoals, awayTeamGoals }, { where: { id } });
+  }
 }

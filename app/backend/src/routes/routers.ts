@@ -17,5 +17,7 @@ routers.get('/teams/:id', teams.getById);
 routers.get('/matches', matches.getAll);
 routers.post('/matches', validationMatches, matches.create);
 routers.patch('/matches/:id/finish', matches.update);
+routers.patch('/matches/:id', matches.updateId);
+// routers.put()
 
 export default routers;
